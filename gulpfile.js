@@ -16,7 +16,7 @@ var path = {
 		maps: 'src/maps/',
 		img: 'src/images/*',
 		js: 'src/js/*.js',
-		html: 'src/html/**/*.html'
+		html: 'src/html/*.html'
 	},
 	dest: {
 		dest: 'dest',
@@ -73,7 +73,7 @@ gulp.task('js', function () {
 
 // Rerun the task when a file changes
 gulp.task('watch', function() {
-	gulp.watch(path.src.html, ['html']);
+	gulp.watch('src/html/**/*.html', ['html']);
   	gulp.watch(path.src.sass, ['sass']);
   	gulp.watch(path.src.js, ['js']);
  	gulp.watch(path.src.img, ['images']);
