@@ -6,6 +6,8 @@ var gulp = require('gulp'),
 	imagemin = require('gulp-imagemin'),
 	runSequence = require('gulp-run-sequence'),
 	rigger = require('gulp-rigger'),
+	cssmin = require('gulp-cssmin'),
+	uglify = require('gulp-uglifyjs'),
 	sass = require('gulp-sass');
 
 var path = {
@@ -13,6 +15,7 @@ var path = {
 		sass: 'src/sass/**/*.scss',
 		maps: 'src/maps/',
 		img: 'src/images/*',
+		js: 'src/js/*.js',
 		html: 'src/html/**/*.html'
 	},
 	dest: {
@@ -20,6 +23,7 @@ var path = {
 		css: 'dest/css/',
 		maps: 'maps/',
 		img: 'dest/images/',
+		js: 'dest/js/',
 		html: '.'
 	}
 }
@@ -33,7 +37,7 @@ gulp.task('html', function () {
     gulp.src(path.src.html)
         .pipe(rigger())
         .pipe(plumber())
-        .pipe(gulp.dest(path.dest.html));  
+        .pipe(gulp.dest(path.dest.html));
 });
 
 gulp.task('sass', function () {
@@ -46,12 +50,12 @@ gulp.task('sass', function () {
 		}))
     .pipe(sass().on('error', sass.logError))
     .pipe(sourcemaps.write(path.dest.maps))
+    .pipe(cssmin())
     .pipe(gulp.dest(path.dest.css));
 });
 
 gulp.task('images', function() {
   return gulp.src(path.src.img)
-    // Pass in options to the task
     .pipe(imagemin({
     	optimizationLevel: 10,
     	progressive: true
@@ -59,15 +63,24 @@ gulp.task('images', function() {
     .pipe(gulp.dest(path.dest.img));
 });
 
+gulp.task('js', function () {
+    gulp.src(path.src.js)
+        .pipe(rigger())
+        .pipe(plumber())
+        .pipe(uglify())
+        .pipe(gulp.dest(path.dest.js));
+});
+
 // Rerun the task when a file changes
 gulp.task('watch', function() {
 	gulp.watch(path.src.html, ['html']);
   	gulp.watch(path.src.sass, ['sass']);
+  	gulp.watch(path.src.js, ['js']);
  	gulp.watch(path.src.img, ['images']);
 });
 
 
 // The default task (called when you run `gulp` from cli)
 gulp.task('default', function() {
-  runSequence('clean', ['sass', 'images', 'html', 'watch']);
+  runSequence('clean', ['html', 'sass', 'images', 'js', 'watch']);
 });
