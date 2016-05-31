@@ -5,19 +5,22 @@ var gulp = require('gulp'),
 	clean = require('gulp-clean'),
 	imagemin = require('gulp-imagemin'),
 	runSequence = require('gulp-run-sequence'),
+	rigger = require('gulp-rigger'),
 	sass = require('gulp-sass');
 
 var path = {
 	src : {
-		sass: 'src/sass/',
+		sass: 'src/sass/**/*.scss',
 		maps: 'src/maps/',
-		img: 'src/images/*'
+		img: 'src/images/*',
+		html: 'src/html/**/*.html'
 	},
 	dest: {
 		dest: 'dest',
-		css: 'dest/css',
+		css: 'dest/css/',
 		maps: 'maps/',
-		img: 'dest/images'
+		img: 'dest/images/',
+		html: '.'
 	}
 }
 
@@ -26,8 +29,15 @@ gulp.task('clean', function () {
     .pipe(clean());
 });
 
+gulp.task('html', function () {
+    gulp.src(path.src.html)
+        .pipe(rigger())
+        .pipe(plumber())
+        .pipe(gulp.dest(path.dest.html));  
+});
+
 gulp.task('sass', function () {
-  return gulp.src(path.src.sass + '**/*.scss')
+  return gulp.src(path.src.sass)
   	.pipe(sourcemaps.init())
   	.pipe(plumber())
   	.pipe(autoprefixer({
@@ -51,12 +61,13 @@ gulp.task('images', function() {
 
 // Rerun the task when a file changes
 gulp.task('watch', function() {
-  gulp.watch(path.src.sass + '**/*.scss', ['sass']);
-  gulp.watch(path.src.img, ['images']);
+	gulp.watch(path.src.html, ['html']);
+  	gulp.watch(path.src.sass, ['sass']);
+ 	gulp.watch(path.src.img, ['images']);
 });
 
 
 // The default task (called when you run `gulp` from cli)
 gulp.task('default', function() {
-  runSequence('clean', ['sass', 'images', 'watch']);
+  runSequence('clean', ['sass', 'images', 'html', 'watch']);
 });
